@@ -3,7 +3,7 @@ const currentConfig = "currentConfig.js"
 
 var fs = require('fs');
 var config = require("./" + baseTemplate);
-var exec = require('child_process').exec;
+var childProcess = require('child_process');
 
 //setting the date range
 config.backtest.daterange.from = "2017-09-11";
@@ -17,15 +17,11 @@ let fileText = "var config = " + JSON.stringify(config) + "\nmodule.exports = co
 //Writing it back to file
 fs.writeFileSync('./' + currentConfig, fileText, 'utf-8'); 
 
-//Now need to kick off gekko
-var child = exec('node gekko.js --backtest --config ' + currentConfig);
-
-child.stdout.on('data', function(data) {
-  console.log(data);
+//Kicking off GEKKO (We need to use "spawn" and not "exec" to get full output)
+var spawn = childProcess.spawnSync;
+var child = spawn('node', ['gekko.js', '--backtest', '--config', currentConfig], {
+  shell: true
 });
 
-child.on('close', function() {
-  console.log('***Backtest Done****');
-});
-
+console.log(child.output.toString("utf8"));
 
