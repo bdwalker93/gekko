@@ -427,7 +427,10 @@ config.mongodb = {
 // @link: https://gekko.wizb.it/docs/commandline/backtesting.html
 
 config.backtest = {
-  daterange: 'scan',
+  daterange: {
+    from: "2017-09-11",
+    to: "2017-09-12"
+  },
   batchSize: 50
 }
 
