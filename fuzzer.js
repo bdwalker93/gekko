@@ -7,31 +7,56 @@ var childProcess = require('child_process');
 
 var backtestResults = [];
 
-//setting the date range
-config.backtest.daterange.from = "2017-09-11";
-config.backtest.daterange.to = "2017-09-12";
+function GenerateNumberRange(start, end, precision)
+{
+  var numArr = [];
+  var currentAmount = start;
+  var incrementAmount = 1;
 
-//DEMA config
-config.DEMA.thresholds.down = -.01;
+  for(var i = 0; i < precision; i++)
+  {
+    incrementAmount = incrementAmount * .1;
+  }
 
-let fileText = "var config = " + JSON.stringify(config) + "\nmodule.exports = config;";
+  while(currentAmount <= end)
+  {
+    numArr.push(currentAmount);
+    currentAmount = currentAmount + incrementAmount;
+  }
 
-//Writing it back to file
-fs.writeFileSync('./' + currentConfig, fileText, 'utf-8'); 
+  return numArr;
+}
 
-//Kicking off GEKKO (We need to use "spawn" and not "exec" to get full output)
-var spawn = childProcess.spawnSync;
-var child = spawn('node', ['gekko.js', '--backtest', '--config', currentConfig], {
-  shell: true
-});
+var nums = GenerateNumberRange(0, .5, 3);
 
-var output = child.output.toString("utf8");
+for(var i = 0; i < nums.length; i++)
+{
+  //setting the date range
+  config.backtest.daterange.from = "2017-09-11";
+  config.backtest.daterange.to = "2017-09-12";
 
-backtestResults.push({
-  "output": output.substring(output.indexOf("(ROUNDTRIP) REPORT:"), output.length)
-});
+  //DEMA config
+  config.DEMA.thresholds.down = -1 * nums[i];
+console.log(config.DEMA.thresholds.down);
+  let fileText = "var config = " + JSON.stringify(config) + "\nmodule.exports = config;";
 
-var indexOfProfit = output.indexOf("(PROFIT REPORT) simulated profit:");
-var endOfProfit =  output.indexOf("\n", indexOfProfit);
-console.log(output.substring(indexOfProfit, endOfProfit));
+  //Writing it back to file
+  fs.writeFileSync('./' + currentConfig, fileText, 'utf-8'); 
+
+  //Kicking off GEKKO (We need to use "spawn" and not "exec" to get full output)
+  var spawn = childProcess.spawnSync;
+  var child = spawn('node', ['gekko.js', '--backtest', '--config', currentConfig], {
+    shell: true
+  });
+
+  var output = child.output.toString("utf8");
+
+  backtestResults.push({
+    "output": output.substring(output.indexOf("(ROUNDTRIP) REPORT:"), output.length)
+  });
+
+  var indexOfProfit = output.indexOf("(PROFIT REPORT) simulated profit:");
+  var endOfProfit =  output.indexOf("\n", indexOfProfit);
+  console.log(output.substring(indexOfProfit, endOfProfit));
+}
 //console.log(output.indexOf("(PROFIT REPORT)"));
