@@ -1,0 +1,12 @@
+{
+  "StartTime": "2017-09-11",
+  "EndTime": "2017-09-12",
+  "StratConfig": [
+    {  
+      "DEMA": {
+        "threshold.down": [],
+        "threshold.up": []
+      }
+    }
+  ]
+}

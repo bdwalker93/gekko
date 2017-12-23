@@ -2,7 +2,8 @@ const baseTemplate = "config.js";
 const currentConfig = "currentConfig.js"
 
 var fs = require('fs');
-var config = require("./" + baseTemplate);
+var gekkoConfig = require("./" + baseTemplate);
+var fuzzerConfig = require("./fuzzerConfig.json"); 
 var childProcess = require('child_process');
 
 var backtestResults = [];
@@ -29,16 +30,17 @@ function GenerateNumberRange(start, end, precision)
 
 var nums = GenerateNumberRange(0, .5, 3);
 
+//setting the date range
+gekkoConfig.backtest.daterange.from = fuzzerConfig.StartTime;
+gekkoConfig.backtest.daterange.to = fuzzerConfig.EndTime;
+
 for(var i = 0; i < nums.length; i++)
 {
-  //setting the date range
-  config.backtest.daterange.from = "2017-09-11";
-  config.backtest.daterange.to = "2017-09-12";
 
   //DEMA config
-  config.DEMA.thresholds.down = -1 * nums[i];
-console.log(config.DEMA.thresholds.down);
-  let fileText = "var config = " + JSON.stringify(config) + "\nmodule.exports = config;";
+  gekkoConfig.DEMA.thresholds.down = -1 * nums[i];
+console.log(gekkoConfig.DEMA.thresholds.down);
+  let fileText = "var config = " + JSON.stringify(gekkoConfig) + "\nmodule.exports = config;";
 
   //Writing it back to file
   fs.writeFileSync('./' + currentConfig, fileText, 'utf-8'); 
