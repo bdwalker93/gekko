@@ -8,16 +8,12 @@ var childProcess = require('child_process');
 
 var backtestResults = [];
 
-function GenerateNumberRange(start, end, precision)
+function GenerateNumberRange(configAr)
 {
   var numArr = [];
-  var currentAmount = start;
-  var incrementAmount = 1;
-
-  for(var i = 0; i < precision; i++)
-  {
-    incrementAmount = incrementAmount * .1;
-  }
+  var currentAmount = configAr[0];
+  var end = configAr[1];
+  var incrementAmount = configAr[2];
 
   while(currentAmount <= end)
   {
@@ -28,18 +24,13 @@ function GenerateNumberRange(start, end, precision)
   return numArr;
 }
 
-var nums = GenerateNumberRange(0, .5, 3);
 
-//setting the date range
-gekkoConfig.backtest.daterange.from = fuzzerConfig.StartTime;
-gekkoConfig.backtest.daterange.to = fuzzerConfig.EndTime;
-
-for(var i = 0; i < nums.length; i++)
+function ExecuteBackTest(up, down)
 {
-
   //DEMA config
-  gekkoConfig.DEMA.thresholds.down = -1 * nums[i];
-console.log(gekkoConfig.DEMA.thresholds.down);
+  gekkoConfig.DEMA.thresholds.down = down;
+  gekkoConfig.DEMA.thresholds.up = up;
+  //console.log(gekkoConfig.DEMA.thresholds.down);
   let fileText = "var config = " + JSON.stringify(gekkoConfig) + "\nmodule.exports = config;";
 
   //Writing it back to file
@@ -60,5 +51,19 @@ console.log(gekkoConfig.DEMA.thresholds.down);
   var indexOfProfit = output.indexOf("(PROFIT REPORT) simulated profit:");
   var endOfProfit =  output.indexOf("\n", indexOfProfit);
   console.log(output.substring(indexOfProfit, endOfProfit));
-}
 //console.log(output.indexOf("(PROFIT REPORT)"));
+}
+
+//setting the date range
+gekkoConfig.backtest.daterange.from = fuzzerConfig.StartTime;
+gekkoConfig.backtest.daterange.to = fuzzerConfig.EndTime;
+
+var up = GenerateNumberRange(fuzzerConfig.StratConfig[0].$.DEMA.threshold.up);
+var down = GenerateNumberRange(fuzzerConfig.StratConfig[0].$.DEMA.threshold.down);
+for(var u = 0; u < up.length; u++)
+{
+  for(var d = 0; d < down.length; d++)
+  {
+    ExecuteBacktest(up[u], down[d]);
+  }
+}

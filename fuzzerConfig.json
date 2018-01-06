@@ -4,8 +4,8 @@
   "StratConfig": [
     {  
       "DEMA": {
-        "threshold.down": [],
-        "threshold.up": []
+        "threshold.down": [-1, 1, 0.1],
+        "threshold.up": [-1, 1, 0.1]
       }
     }
   ]
